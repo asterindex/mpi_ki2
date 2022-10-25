@@ -56,21 +56,17 @@ int main(int argc, char** argv)
         ProcSum = ProcSum + x[i];
     
     // assembling partial sum on process 0 
-    if (ProcRank == 0)
-    {
-        TotalSum = ProcSum;
-        for (int i = 1; i < ProcNum; i++) {
-            MPI_Recv(&ProcSum, 1, MPI_DOUBLE, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &Status);
-            TotalSum = TotalSum + ProcSum;
-        }
-    }
-    else // all process send the partial sums
-        MPI_Send(&ProcSum, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&ProcSum, &TotalSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     // print result
+    
+    MPI_Barrier(MPI_COMM_WORLD);
     if (ProcRank == 0)
         printf("\nTotal Sum = %10.2f", TotalSum);
-
+      
     MPI_Finalize();
+    
+
+   
 
     return 0;
 
